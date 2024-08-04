@@ -1,0 +1,35 @@
+# Creates a container for the apache server, one for the DB and one for phpmyadmin
+services:
+  #Container to deploy the web app wit php and apache
+  webserver:
+    container_name: php_webapp
+    depends_on:
+      - db
+    build:
+      context: .
+    ports:
+      - 8080:80
+
+  #Container to deploy a mariadb 
+  db:
+    image: mariadb:10.1 #this version has compatibility for php 7.1 withouth issues on authentication
+    container_name: maria_db
+    environment:
+    #Credentials are taken from the scripts
+      - MYSQL_DATABASE=sample
+      - MYSQL_USER=sampleuser
+      - MYSQL_PASSWORD=samplepass
+      - MYSQL_ALLOW_EMPTY_PASSWORD=1
+    volumes:
+      - "./sql:/docker-entrypoint-initdb.d" #Route to dir for sql file
+
+  phpmyadmin:
+  #Its purpose its to facilitate acces/management to the DB
+    image: phpmyadmin/phpmyadmin
+    ports:
+      - 8001:80
+    environment:
+      - PMA_HOST=db
+      - PMA_PORT=3306
+
+      
